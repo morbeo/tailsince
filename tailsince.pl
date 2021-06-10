@@ -5,7 +5,6 @@ my $VERSION = '0.1';
 use warnings;
 use diagnostics; # debugging
 
-use Data::Dumper;
 use Getopt::Long qw(HelpMessage VersionMessage);
 use Pod::Usage;
 use DateTime;              # for time conversions and calculations
@@ -40,7 +39,6 @@ GetOptions(
   ) or HelpMessage(1);
 
 my $reference = DateTime->now->subtract( $delta_unit => $delta_value );
-# print "$reference\n";
 unless (@ARGV) {
   print "Need at least one file\n";
   HelpMessage(1);
@@ -53,10 +51,10 @@ unless ( $delta_unit =~ /seconds|minutes|hours/ ) {
 my @filelist = @ARGV;
 
 foreach my $file (@filelist) {
-  open(my $fh, "-|","tac", $file) or die "Could not open $file\n";
+  open(my $current_file, "-|","tac", $file) or die "Could not open $file\n"; # open file with tac so it is in reverse
   my (@timestamp, @fixedtimestamp, $epochtimestamp, @tail, %delta);
-  while (<$fh>) {
-    @timestamp = split /[][]/; # remove square brackets from the timestamp
+  while (<$current_file>) {
+    @timestamp      = split /[][]/; # remove square brackets from the timestamp
     @fixedtimestamp = split /\/|:| /, $timestamp[1];
     $epochtimestamp = DateTime->new( year      => $fixedtimestamp[2],
                                      month     => $month_abbr{"$fixedtimestamp[1]"},
